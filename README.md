@@ -2,12 +2,14 @@
 Running the code
 -----------------
 
-The project uses the library 'bashful' to execute the spark code from a 'workflow.yaml' YAML file. This file has the file run command and a tag to identify this command
+The project uses the library 'bashful' to execute the spark code from a 'workflow.yaml' YAML file. This file has the file run command and a tag to identify this command.
 
 Link to bashful - https://github.com/wagoodman/bashful
 
-1. To run all tasks - bashful run ci.yaml
-2. To run a specific task named 'build' - bashful run ci.yaml --tags build
+Run the following within the code folder, since folder paths are relative to this folder.
+
+1. To run all tasks - bashful run workflow.yaml
+2. To run a specific task named 'build' - bashful run workflow.yaml --tags build
 
 The folder structure
 --------------------
