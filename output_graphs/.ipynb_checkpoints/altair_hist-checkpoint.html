@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    .error {
+        color: red;
+    }
+  </style>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm//vega@5"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm//vega-lite@4.8.1"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm//vega-embed@6"></script>
+</head>
+<body>
+  <div id="vis"></div>
+  <script>
+    (function(vegaEmbed) {
+      var spec = {"config": {"view": {"continuousWidth": 400, "continuousHeight": 300}}, "vconcat": [{"data": {"name": "data-8e1b344b0a2a6600741daeb1afa1d2eb"}, "mark": {"type": "bar", "opacity": 0.2}, "encoding": {"x": {"type": "quantitative", "field": "x"}, "y": {"type": "quantitative", "field": "count", "scale": {"base": 10, "type": "log"}}}, "title": "Total degrees"}, {"data": {"name": "data-edd4fe79f5cc24820dc1bc247a365d20"}, "mark": {"type": "bar", "color": "red", "opacity": 0.2}, "encoding": {"x": {"type": "quantitative", "field": "x"}, "y": {"type": "quantitative", "field": "count", "scale": {"base": 10, "type": "log"}}}, "title": "Out degrees"}, {"data": {"name": "data-559480173691a61aeafd8d2b5e2b73b0"}, "mark": {"type": "bar", "color": "green", "opacity": 0.2}, "encoding": {"x": {"type": "quantitative", "field": "x"}, "y": {"type": "quantitative", "field": "count", "scale": {"base": 10, "type": "log"}}}, "title": "In degrees"}], "$schema": "https://vega.github.io/schema/vega-lite/v4.8.1.json", "datasets": {"data-8e1b344b0a2a6600741daeb1afa1d2eb": [{"buckets": 0.0, "count": 148205251, "x": 0}, {"buckets": 1.0, "count": 6103045, "x": 10}, {"buckets": 2.0, "count": 1943643, "x": 20}, {"buckets": 3.0, "count": 901299, "x": 30}, {"buckets": 4.0, "count": 532199, "x": 40}, {"buckets": 5.0, "count": 350361, "x": 50}, {"buckets": 6.0, "count": 247005, "x": 60}, {"buckets": 7.0, "count": 184288, "x": 70}, {"buckets": 8.0, "count": 142006, "x": 80}, {"buckets": 9.0, "count": 113438, "x": 90}, {"buckets": 10.0, "count": 873176, "x": 100}, {"buckets": 11.0, "count": 342707, "x": 500}, {"buckets": 12.0, "count": 33040, "x": 5000}, {"buckets": 13.0, "count": 10165, "x": 10000}, {"buckets": 14.0, "count": 3105, "x": 25000}, {"buckets": 15.0, "count": 916, "x": 50000}, {"buckets": 16.0, "count": 419, "x": 75000}, {"buckets": 17.0, "count": 586, "x": 100000}, {"buckets": 18.0, "count": 338, "x": 200000}, {"buckets": 19.0, "count": 86, "x": 500000}, {"buckets": 20.0, "count": 57, "x": 1000000}], "data-edd4fe79f5cc24820dc1bc247a365d20": [{"buckets": 0.0, "count": 131968564, "x": 0}, {"buckets": 1.0, "count": 4156950, "x": 10}, {"buckets": 2.0, "count": 1239409, "x": 20}, {"buckets": 3.0, "count": 522857, "x": 30}, {"buckets": 4.0, "count": 292133, "x": 40}, {"buckets": 5.0, "count": 184349, "x": 50}, {"buckets": 6.0, "count": 125689, "x": 60}, {"buckets": 7.0, "count": 91253, "x": 70}, {"buckets": 8.0, "count": 69937, "x": 80}, {"buckets": 9.0, "count": 55559, "x": 90}, {"buckets": 10.0, "count": 467590, "x": 100}, {"buckets": 11.0, "count": 235815, "x": 500}, {"buckets": 12.0, "count": 8651, "x": 5000}, {"buckets": 13.0, "count": 3505, "x": 10000}, {"buckets": 14.0, "count": 850, "x": 25000}, {"buckets": 15.0, "count": 247, "x": 50000}, {"buckets": 16.0, "count": 121, "x": 75000}, {"buckets": 17.0, "count": 145, "x": 100000}, {"buckets": 18.0, "count": 65, "x": 200000}, {"buckets": 19.0, "count": 17, "x": 500000}, {"buckets": 20.0, "count": 9, "x": 1000000}], "data-559480173691a61aeafd8d2b5e2b73b0": [{"buckets": 0.0, "count": 56267198, "x": 0}, {"buckets": 1.0, "count": 2103131, "x": 10}, {"buckets": 2.0, "count": 747544, "x": 20}, {"buckets": 3.0, "count": 391398, "x": 30}, {"buckets": 4.0, "count": 243700, "x": 40}, {"buckets": 5.0, "count": 167947, "x": 50}, {"buckets": 6.0, "count": 123123, "x": 60}, {"buckets": 7.0, "count": 94508, "x": 70}, {"buckets": 8.0, "count": 75550, "x": 80}, {"buckets": 9.0, "count": 61331, "x": 90}, {"buckets": 10.0, "count": 523980, "x": 100}, {"buckets": 11.0, "count": 178453, "x": 500}, {"buckets": 12.0, "count": 10031, "x": 5000}, {"buckets": 13.0, "count": 5807, "x": 10000}, {"buckets": 14.0, "count": 1750, "x": 25000}, {"buckets": 15.0, "count": 569, "x": 50000}, {"buckets": 16.0, "count": 254, "x": 75000}, {"buckets": 17.0, "count": 386, "x": 100000}, {"buckets": 18.0, "count": 217, "x": 200000}, {"buckets": 19.0, "count": 67, "x": 500000}, {"buckets": 20.0, "count": 35, "x": 1000000}]}};
+      var embedOpt = {"mode": "vega-lite"};
+
+      function showError(el, error){
+          el.innerHTML = ('<div class="error" style="color:red;">'
+                          + '<p>JavaScript Error: ' + error.message + '</p>'
+                          + "<p>This usually means there's a typo in your chart specification. "
+                          + "See the javascript console for the full traceback.</p>"
+                          + '</div>');
+          throw error;
+      }
+      const el = document.getElementById('vis');
+      vegaEmbed("#vis", spec, embedOpt)
+        .catch(error => showError(el, error));
+    })(vegaEmbed);
+
+  </script>
+</body>
+</html>
