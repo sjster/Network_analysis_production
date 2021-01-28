@@ -2,5 +2,5 @@
 tasks:
     - name: Graph metrics
       conda_env: pyspark
-      cmd: spark-submit --driver-cores 18 --driver-memory 24g --num-executors 24 --master local[*] --packages graphframes:graphframes:0.6.0-spark2.3-s_2.11 graph_metrics.py 
-      tags: graph_metrics
+      cmd: spark-submit --driver-cores 18 --driver-memory 24g --num-executors 24 --master local[*] --packages graphframes:graphframes:0.6.0-spark2.3-s_2.11 production_code_in/graph_metrics.py 
+      tags: graph_metrics_production
