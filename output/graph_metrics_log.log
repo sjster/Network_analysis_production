@@ -1,0 +1,4 @@
+[2021-01-28 16:31:38,707] [../output/graph_metrics_log_log] [INFO] Reading from ../data
+[2021-01-28 16:31:50,540] [../output/graph_metrics_log_log] [INFO] Number of vertices -- 159987130
+[2021-01-28 16:31:50,540] [../output/graph_metrics_log_log] [INFO] Number of edges -- 1080587011
+[2021-01-28 16:31:50,540] [../output/graph_metrics_log_log] [INFO] Sparsity --   0.000000
