@@ -5,6 +5,7 @@ tasks:
       cmd: spark-submit --driver-cores 18 --driver-memory 24g --num-executors 24 --master local[*] --packages graphframes:graphframes:0.6.0-spark2.3-s_2.11 production_code_in/graph_metrics.py 
       tags: graph_metrics_production
 
+
     - name: Plot network metrics
       conda_env: graph_env 
       input: /home/vt/extra_storage/Production/output/hist_dict.pkl
@@ -12,11 +13,24 @@ tasks:
       cmd: source activate graph_env && python production_code_in/plot_network_stats.py
       tags: network_stats
     
+    
     - name: Download tweets, check Jobs.log for job status 
       conda_env: rqenv
       input: /home/vt/extra_storage/Production/code/rq_downloader/input_userids.in
       output: /home/vt/extra_storage/twitter_data/tweets_central_figures/
       cmd: source activate rqenv && cd /home/vt/RQ/&& python /home/vt/extra_storage/Production/code/rq_downloader/job_submission.py --file /home/vt/extra_storage/Production/code/rq_downloader/input_userids.in --output /home/vt/extra_storage/twitter_data/tweets_central_figures/ --function download_tweets
       tags: download_tweets_user
+      
+      
+    - name: Download tweets for all users in pagerank, check Jobs.log for job status 
+      conda_env: rqenv
+      input1: /home/vt/extra_storage/Production/data/production_data_in/id_name_by_pagerank.csv
+      input2: /home/vt/extra_storage/Production/code/rq_downloader/input_userids.in
+      output: /home/vt/extra_storage/twitter_data/tweets_central_figures
+      cmd: awk -F"," '{print $1}' ../data/production_data_in/id_name_by_pagerank.csv > rq_downloader/input_userids.in
+      cmd: cp /home/vt/extra_storage/Production/code/rq_downloader/input_userids.in /home/vt/RQ/input_userids.in
+      cmd: source activate rqenv && cd /home/vt/RQ/ && python /home/vt/extra_storage/Production/code/rq_downloader/job_submission.py --file /home/vt/extra_storage/Production/code/rq_downloader/input_userids.in --output /home/vt/extra_storage/twitter_data/tweets_central_figures/ --function download_tweets
+      tags: download_tweets_for_pagerank_ids
+      
       
       
