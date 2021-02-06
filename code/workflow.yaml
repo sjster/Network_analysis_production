@@ -9,3 +9,8 @@ tasks:
       conda_env: graph_env 
       cmd: source activate graph_env && python production_code_in/plot_network_stats.py
       tags: network_stats
+    
+    - name: Download tweets 
+      conda_env: rqenv
+      cmd: current_dir=$PWD && source activate rqenv && cd /home/vt/RQ/ && python $current_dir/rq_downloader/job_submission.py --file $current_dir/rq_downloader/input_userids.in --output /home/vt/extra_storage/twitter_data --function download_tweets 
+      tags: download_tweets_user
