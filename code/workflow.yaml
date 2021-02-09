@@ -32,5 +32,9 @@ tasks:
       cmd: source activate rqenv && cd /home/vt/RQ/ && python /home/vt/extra_storage/Production/code/rq_downloader/job_submission.py --file /home/vt/extra_storage/Production/code/rq_downloader/input_userids.in --output /home/vt/extra_storage/twitter_data/tweets_central_figures/ --function download_tweets
       tags: download_tweets_for_pagerank_ids
       
+    #- name: Delete all files older than a certain time
+      #cmd: find /path -mmin +59 -type f -exec rm -fv {} \;
+     # tags: delete_files
+      
       
       
