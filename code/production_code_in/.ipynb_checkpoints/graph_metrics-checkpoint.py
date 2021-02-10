@@ -1,7 +1,3 @@
-import pymongo_spark
-pymongo_spark.activate()
-import findspark
-findspark.init()
 from pyspark.ml import Pipeline
 import pyspark
 from pyspark import SparkContext

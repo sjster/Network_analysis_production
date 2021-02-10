@@ -21,7 +21,7 @@ import json
 import pickle
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Processing exploded files')
+    parser = argparse.ArgumentParser(description='Processing tweets')
     parser.add_argument('--input_pagerank_id_file', type=str, default="/home/vt/extra_storage/Production/data/production_data_in/id_name_by_pagerank.csv",
                     help='input file that has the top 5000 pagerank ids')
     parser.add_argument('--input_tweets_folder', type=str, default="/home/vt/extra_storage/twitter_data/tweets_central_figures/*.txt",
@@ -30,34 +30,43 @@ if __name__ == "__main__":
                     help='The output file for merged tweets')
     
     args = parser.parse_args()
-    
-    fpath =args['input']
-    graphtool_file = args['graphtool_file']
-    network_stats_file = args['network_stats_file']
-    filtered_edge_file = args['output']
-
-    filename = glob.glob(fpath)
+    print(args)
+    pagerank_id_file = args.input_pagerank_id_file
+    input_tweets_folder = args.input_tweets_folder
+    output_file = args.output
 
     conf = pyspark.SparkConf()
     conf.set('spark.local.dir', '/home/vt/extra_storage/')
     conf.set('spark.sql.shuffle.partitions', '2100')
     conf.set('spark.driver.maxResultSize', '8g')
+    conf.set("spark.sql.legacy.allowCreatingManagedTableUsingNonemptyLocation","true")
     SparkContext.setSystemProperty('spark.executor.memory', '48g')
     SparkContext.setSystemProperty('spark.driver.memory', '48g')
+    
     sc = SparkContext(appName='mm_exp', conf=conf)
     spark = SparkSession(sc)
     
-    data = spark.read.option("header", "false").option("multiline",False).json("/home/vt/extra_storage/twitter_data/tweets_central_figures/*.txt")
+    data = spark.read.option("header", "false").option("multiline",False).json(input_tweets_folder)
     
     pub_extracted = data.rdd.map(lambda x: ( x['user']['screen_name'], x['user']['id'], x['id'], x['full_text']) ).toDF(['name', 'user_id','tweet_id','text'])
+    pub_extracted_unique = pub_extracted.dropDuplicates(['tweet_id'])
     print("Count of extracted tweets ",pub_extracted.count())
     
-    pagerank_top5000_ids = spark.read.csv('/home/vt/extra_storage/Production/data/production_data_in/id_name_by_pagerank.csv')
+    pagerank_top5000_ids = spark.read.csv(pagerank_id_file)
     
     pagerank_top5000_ids = pagerank_top5000_ids.withColumnRenamed('_c0','id').withColumnRenamed('_c1','username')
     pzip = pagerank_top5000_ids.rdd.zipWithIndex()
     pzip_DF = pzip.map(lambda x: (x[0][0], x[0][1], x[1])).toDF(['userid','username','rank'])
     
-    tweets_top5000_joined_by_rank = pzip_DF.join(pub_extracted_unique, pzip_DF.userid == pub_extracted_unique.user_id, 'full')
+    tweets_top5000_joined_by_rank = pzip_DF.join(pub_extracted, pzip_DF.userid == pub_extracted.user_id, 'full')
     
     print(tweets_top5000_joined_by_rank.show())
+    
+    spark.sql('DROP TABLE IF EXISTS tweets_top5000_by_pagerank')
+    spark.sql('DROP TABLE IF EXISTS tweets_top5000_deduplicated')
+    tweets_top5000_joined_by_rank.write.option('path', "../data/spark-warehouse-files/tweets_top5000_joined_by_pagerank").mode('overwrite').saveAsTable('tweets_top5000_joined_by_pagerank')
+    pub_extracted_unique.write.option('path', "../data/spark-warehouse-files/tweets_top5000_deduplicated").mode('overwrite').saveAsTable('tweets_top5000_deduplicated')
+    
+    print(spark.catalog.listTables())
+
+

@@ -35,6 +35,19 @@ tasks:
     #- name: Delete all files older than a certain time
       #cmd: find /path -mmin +59 -type f -exec rm -fv {} \;
      # tags: delete_files
+     
+     
+    - name: ETL for joining tweets with the top 5000 pagerank ids and usernames
+      dependency: download_tweets_for_pagerank_ids
+      dependency_type: 'one_time'
+      conda_env: pyspark
+      input1: /home/vt/extra_storage/Production/data/production_data_in/id_name_by_pagerank.csv
+      input2: /home/vt/extra_storage/twitter_data/tweets_central_figures/*.txt
+      output: /home/vt/extra_storage/Production/data/temp_data_in/tweets_top5000_joined_by_rank
+      cmd:  spark-submit --driver-cores 18 --driver-memory 24g --num-executors 24 --master local[*] --packages graphframes:graphframes:0.6.0-spark2.3-s_2.11 production_code_in/ETL/join_tweets_with_pagerank.py --input_pagerank_id_file /home/vt/extra_storage/Production/data/production_data_in/id_name_by_pagerank.csv
+      tags: clean_tweets_join_with_pagerank
+     
+     
       
       
       
