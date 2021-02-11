@@ -64,7 +64,10 @@ if __name__ == "__main__":
     
     spark.sql('DROP TABLE IF EXISTS tweets_top5000_by_pagerank')
     spark.sql('DROP TABLE IF EXISTS tweets_top5000_deduplicated')
+    
     tweets_top5000_joined_by_rank.write.option('path', "../data/spark-warehouse-files/tweets_top5000_joined_by_pagerank").mode('overwrite').saveAsTable('tweets_top5000_joined_by_pagerank')
+    tweets_top5000_joined_by_rank.write.option('path', "../data/spark-warehouse-files/tweets_top5000_joined_by_pagerank").mode('overwrite').save('tweets_top5000_joined_by_pagerank.json')
+    
     pub_extracted_unique.write.option('path', "../data/spark-warehouse-files/tweets_top5000_deduplicated").mode('overwrite').saveAsTable('tweets_top5000_deduplicated')
     
     print(spark.catalog.listTables())
