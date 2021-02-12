@@ -1,4 +1,5 @@
 import pandas as pd
+import glob
 from sqlalchemy import create_engine
 from sqlalchemy import Table, Column, Integer, String, MetaData
 
@@ -11,7 +12,7 @@ df.to_sql('page_rank_top5000_users', con=engine, if_exists='replace')
 
 # Insert friends and followers of central figures, along with pagerank, friends and followers count,
 # what central figure they are connected to.
-df = pd.read_json('/home/vt/extra_storage/Production/data/production_data_in/friends_and_followers_of_central_figures/part-00000-52eab7c3-999f-4107-b476-0833ea26f087-c000.json',lines=True)
+df = pd.read_json(glob.glob('/home/vt/extra_storage/Production/data/production_data_in/friends_and_followers_of_central_figures/*.json')[0],lines=True)
 
 df['followers_of_central_figure_string'] = [','.join(map(str, l)) for l in df['followers_of_central_figure']]
 df['friends_of_central_figure_string'] = [','.join(map(str, l)) for l in df['friends_of_central_figure']]
