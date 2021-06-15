@@ -101,7 +101,7 @@ print("Sparsity is ", sparsity)
 
 log.info('Number of vertices -- {:d}'.format(nvert))
 log.info('Number of edges -- {:d}'.format(nedges))
-log.info('Sparsity -- {:10f}'.format(sparsity))
+log.info('Sparsity -- {:16f}'.format(sparsity))
 
 # Random and regular networks have homogeneous degree distributions
 # Small-world network have degree distributions between these two

@@ -14,6 +14,9 @@ df.to_sql('page_rank_top5000_users', con=engine, if_exists='replace')
 # what central figure they are connected to.
 df = pd.read_json(glob.glob('/home/vt/extra_storage/Production/data/production_data_in/friends_and_followers_of_central_figures/*.json')[0],lines=True)
 
+df['followers_of_central_figure_ct'] = df['followers_of_central_figure'].map(lambda x: len(x))
+df['friends_of_central_figure_ct'] = df['friends_of_central_figure'].map(lambda x: len(x))
+
 df['followers_of_central_figure_string'] = [','.join(map(str, l)) for l in df['followers_of_central_figure']]
 df['friends_of_central_figure_string'] = [','.join(map(str, l)) for l in df['friends_of_central_figure']]
 

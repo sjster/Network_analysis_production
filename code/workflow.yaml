@@ -18,8 +18,8 @@ tasks:
       conda_env: sqlenv 
       input: /home/vt/extra_storage/Production/data/production_data_in/id_name_by_pagerank.csv
       input: /home/vt/extra_storage/Production/data/production_data_in/friends_and_followers_of_central_figures/part-00000-52eab7c3-999f-4107-b476-0833ea26f087-c000.json
-      output: [table] - page_rank_top5000_users
-      output: [table] - page_rank_top5000_friends_and_followers_of_central_figures
+      output: (table) - page_rank_top5000_users
+      output: (table) - page_rank_top5000_friends_and_followers_of_central_figures
       cmd: source activate sqlenv && python production_code_in/ETL/insert_pagerank_ids_to_mysql.py
       tags: ETL_insert_pagerank
       
@@ -27,7 +27,7 @@ tasks:
     - name: Update MYSQL database with tweets
       conda_env: sqlenv 
       input: /home/vt/extra_storage/Production/output/tweets_top5000_joined_by_rank.json/part-00000-0c49311a-7471-4a52-bbd9-0ec3843b0c31-c000.json
-      output: [table] - tweets
+      output: (table) - tweets
       cmd: source activate sqlenv && python production_code_in/ETL/upload_tweets_to_database.py
       tags: ETL_insert_tweets
     
@@ -65,7 +65,13 @@ tasks:
       cmd:  spark-submit --driver-cores 18 --driver-memory 24g --num-executors 24 --master local[*] --packages graphframes:graphframes:0.6.0-spark2.3-s_2.11 production_code_in/ETL/join_tweets_with_pagerank.py --input_pagerank_id_file /home/vt/extra_storage/Production/data/production_data_in/id_name_by_pagerank.csv
       tags: clean_tweets_join_with_pagerank
      
-     
+    - name: Topic modeling
+      dependency: clean_tweets_join_with_pagerank
+      dependency_type: 'one_time'
+      conda_env: pyspark
+      input: /home/vt/extra_storage/Production/output/tweets_top5000_joined_by_rank.json
+      cmd: spark-submit --driver-cores 18 --driver-memory 24g --num-executors 24 --master local[*] --packages graphframes:graphframes:0.6.0-spark2.3-s_2.11 production_code_in/topic_modeling.py
+      tags: topic_model
       
       
       

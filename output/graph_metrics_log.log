@@ -1,4 +1,4 @@
-[2021-02-11 14:22:18,142] [../output/graph_metrics_log_log] [INFO] Reading from ../data
-[2021-02-11 14:22:31,047] [../output/graph_metrics_log_log] [INFO] Number of vertices -- 159987130
-[2021-02-11 14:22:31,047] [../output/graph_metrics_log_log] [INFO] Number of edges -- 1080587011
-[2021-02-11 14:22:31,047] [../output/graph_metrics_log_log] [INFO] Sparsity --   0.000000
+[2021-06-14 22:40:18,433] [../output/graph_metrics_log_log] [INFO] Reading from ../data
+[2021-06-14 22:40:32,423] [../output/graph_metrics_log_log] [INFO] Number of vertices -- 159987130
+[2021-06-14 22:40:32,423] [../output/graph_metrics_log_log] [INFO] Number of edges -- 1080587011
+[2021-06-14 22:40:32,423] [../output/graph_metrics_log_log] [INFO] Sparsity --         0.000000
