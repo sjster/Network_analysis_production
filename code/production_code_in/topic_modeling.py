@@ -10,6 +10,11 @@ from pyspark.sql.functions import concat_ws
 from pyspark.sql.functions import collect_list
 
 
+def write_vocab_csv(l):
+    with open('/home/vt/extra_storage/Production/output/vocab.txt', 'w') as f:
+        for elem in l:
+            f.write(elem + "\n")
+
 def custom_stop_words():
     stopwordList = ["rt"] 
     stopwordList.extend(StopWordsRemover().getStopWords())
@@ -49,10 +54,10 @@ cv = CountVectorizer(inputCol="filtered_col", outputCol="rawFeatures", vocabSize
 cvmodel = cv.fit(filtered)
 # ------------------------- BOW model ----------------#
 vocab = cvmodel.vocabulary # list of words in order, write out for vocab.txt file
-d_bow = filtered.count()
-w_bow = len(vocab)
+d_bow = filtered.count()   # number of documents in the vocabulary
+w_bow = len(vocab)         # number of words in the vocabulary
 vector_udf = udf(lambda vector: vector.numNonzeros(), LongType())
-# ----------------------------------------------------#
+# -------------------------- Write out docword.txt--------------------------#
 vocab_broadcast = sc.broadcast(vocab)
 featurized = cvmodel.transform(filtered)
 nnz_bow = featurized.select(vector_udf('rawFeatures')).groupBy().sum().collect()
@@ -66,6 +71,11 @@ fzipped_sep = fzipped.withColumn('vals', fzipped['_1'].getItem("vals"))
 fzipped_sep = fzipped_sep.withColumn('indices', fzipped['_1'].getItem("indices"))
 fzipped_sep2 = fzipped_sep.select("_2", arrays_zip("indices", "vals"))
 nnz_data = fzipped_sep2.select("_2", explode("arrays_zip(indices, vals)"))
+out2 = nnz_data.withColumn('indices', out['col'].getItem("indices")).withColumn('cnt', out['col'].getItem("vals")).withColumn('reindexed', out2['_2'] + 1).select('reindexed', 'indices', col('cnt').cast(IntegerType()))
+nnz_bow = out2.select(sum(col('cnt'))).collect()[0][0] # number of nnz in the documents
+out2.repartition(1).write.save(path='/home/vt/extra_storage/Production/output/docword.txt', format='csv', mode='overwrite', sep=" ")
+
+# ------------------------------ Topic model --------------------------#
 
 idf = IDF(inputCol="rawFeatures", outputCol="features")
 idfModel = idf.fit(featurized)
