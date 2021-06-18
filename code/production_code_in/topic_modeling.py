@@ -74,6 +74,7 @@ nnz_data = fzipped_sep2.select("_2", explode("arrays_zip(indices, vals)"))
 out2 = nnz_data.withColumn('indices', out['col'].getItem("indices")).withColumn('cnt', out['col'].getItem("vals")).withColumn('reindexed', out2['_2'] + 1).select('reindexed', 'indices', col('cnt').cast(IntegerType()))
 nnz_bow = out2.select(sum(col('cnt'))).collect()[0][0] # number of nnz in the documents
 out2.repartition(1).write.save(path='/home/vt/extra_storage/Production/output/docword.txt', format='csv', mode='overwrite', sep=" ")
+write_vocab_csv(vocab) 
 
 # ------------------------------ Topic model --------------------------#
 
