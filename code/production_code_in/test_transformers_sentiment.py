@@ -6,7 +6,7 @@ import urllib
 import json
 import os
 
-from pyspark.sql.functions import udf
+from pyspark.sql.functions import udf, pandas_udf
 
 
 def preprocess(text):
@@ -31,10 +31,8 @@ labels = [row[1] for row in csvreader if len(row) > 1]
 
 model = TFAutoModelForSequenceClassification.from_pretrained(MODEL)
 
-
-
     
-@pandas_udf(StringType, PandasUDFType.SCALAR_ITER)
+#@pandas_udf(StringType, PandasUDFType.SCALAR_ITER)
 def get_results(inp):
         tokenized = tokenizer(seq, padding=True, return_tensors='tf')['input_ids']
         model = TFAutoModelForSequenceClassification()
@@ -52,7 +50,10 @@ def spark_tokenize():
     input_tweets_folder = "/home/vt/extra_storage/Production/output/tweets_top5000_joined_by_rank.json"
     df = spark.read.option("header", "false").option("multiline",False).json(input_tweets_folder)
     tokenize_udf = udf(tokenize, ArrayType(IntegerType()))
-    df.withColumn("text_tokenized", tokenize_udf("text"))
+    df = df.dropna(how='any', subset='text')
+    df = df.dropDuplicates(['tweet_id'])
+    df = df.withColumn("text_tokenized", tokenize_udf("text"))
+    df.write.option('format','json').mode('overwrite').save('/home/vt/extra_storage/Production/output/tweets_tokenized_sentiment.json')
 
 def hello():
 
@@ -83,3 +84,5 @@ def classify_text():
         score = softmax(output[0][i].numpy()) 
         print(list(zip(labels, score)))
     
+
+spark_tokenize()
