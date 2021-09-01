@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.special import softmax
 import csv
-from transformers import *
+from transformers import AutoTokenizer, TFAutoModelForSequenceClassification
 import pandas as pd
 import tensorflow as tf
 import urllib
