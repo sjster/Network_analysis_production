@@ -31,4 +31,6 @@ Cloud storage
 
 Push the input and output data to Wasabi. The code and configuration information will be in Wasabi_data 
 
+aws s3 cp filename  s3://BUCKET/filename  --profile 'wasabi' --endpoint-url 'https://s3.wasabisys.com'
+
 
