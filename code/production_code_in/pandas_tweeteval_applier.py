@@ -47,5 +47,5 @@ def inference_1():
         tokenized = tokenizer(list(df['text']), padding=True, return_tensors='tf')
         res = model.predict(tokenized['input_ids'], batch_size=100, use_multiprocessing=True)
     
-inference_1()
+print(labels)
     
