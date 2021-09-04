@@ -22,5 +22,5 @@ for file in files:
 	df['joy'] = res2
 	df['optimism'] = res3
 	df['sadness'] = res4
-	print(df.head())
+	print(df[['name','text','anger','joy','optimism','sadness']].head())
 
