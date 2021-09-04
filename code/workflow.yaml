@@ -64,6 +64,7 @@ tasks:
       output: /home/vt/extra_storage/Production/data/temp_data_in/tweets_top5000_joined_by_rank
       cmd:  spark-submit --driver-cores 18 --driver-memory 24g --num-executors 24 --master local[*] --packages graphframes:graphframes:0.6.0-spark2.3-s_2.11 production_code_in/ETL/join_tweets_with_pagerank.py --input_pagerank_id_file /home/vt/extra_storage/Production/data/production_data_in/id_name_by_pagerank.csv
       tags: clean_tweets_join_with_pagerank
+
      
     - name: Topic modeling
       dependency: clean_tweets_join_with_pagerank
@@ -72,6 +73,25 @@ tasks:
       input: /home/vt/extra_storage/Production/output/tweets_top5000_joined_by_rank.json
       cmd: spark-submit --driver-cores 18 --driver-memory 24g --num-executors 24 --master local[*] --packages graphframes:graphframes:0.6.0-spark2.3-s_2.11 production_code_in/NLP/topic_modeling.py
       tags: topic_model
+
       
-      
-      
+    - name: Create tweets for sentiment analyses 
+      dependency: clean_tweets_join_with_pagerank 
+      dependency_type: 'one_time'
+      conda_env: pyspark
+      input: /home/vt/extra_storage/Production/output/tweets_top5000_joined_by_rank.json
+      output: /home/vt/extra_storage/Production/output/tweets_tokenized_sentiment.json
+      cmd: spark-submit --driver-cores 18 --driver-memory 24g --num-executors 24 --master local[*]  production_code_in/ETL/create_tweets_for_sentiment_analyses.py 
+      tags: create_tweets_for_sentiment_analyses
+      comment: Move the output parquet files to Wasabi cloud bucket /sentiment/
+
+
+    - name: Sentiment analysis 
+      dependency: create_tweets_for_sentiment_analyses 
+      dependency_type: 'one_time'
+      conda_env: tf_transformers/ Google Colab (transformers, sentencepiece, fastparquet, s3fs)
+      input: /home/vt/extra_storage/Production/output/tweets_tokenized_sentiment.json
+      input: /sentiment/*.parquet
+      output: /sentimentres/results/*.npy
+      cmd: python transformer_sentiment_analyzer_from_S3.py
+      tags: run_tweeteval_sentiment_analyses
