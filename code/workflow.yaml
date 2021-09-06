@@ -86,6 +86,13 @@ tasks:
       comment: Move the output parquet files to Wasabi cloud bucket /sentiment/
 
 
+    - name: Copy unprocessed tweet files to Wasabi
+      input: /home/vt/extra_storage/Production/output/tweets_tokenized_sentiment.json/
+      output: /sentiment/
+      command: aws s3 cp /home/vt/extra_storage/Production/output/tweets_tokenized_sentiment.json/ s3://sentiment/ --recursive --profile wasabi --endpoint-url https://s3.wasabisys.com
+      tags: copy_sentiment_files_to_wasabi
+
+
     - name: Sentiment analysis 
       dependency: create_tweets_for_sentiment_analyses 
       dependency_type: 'one_time'
@@ -95,3 +102,12 @@ tasks:
       output: /sentimentres/results/*.npy
       cmd: python transformer_sentiment_analyzer_from_S3.py
       tags: run_tweeteval_sentiment_analyses
+    
+
+
+    - name: Copy processed sentiment files from Wasabi to local folder 
+      input: /sentimentres/results/
+      output: /home/vt/extra_storage/Production/output/processed_tweet_files/
+      command: aws s3 cp s3://sentimentres/results /home/vt/extra_storage/Production/output/sentiment --recursive --profile wasabi --endpoint-url https://s3.wasabisys.com
+      tags: copy_processed_sentiment_files_from_Wasabi
+

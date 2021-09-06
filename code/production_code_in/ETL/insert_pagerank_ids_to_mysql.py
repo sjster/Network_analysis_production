@@ -6,6 +6,9 @@ from sqlalchemy import Table, Column, Integer, String, MetaData
 engine = create_engine("mysql+pymysql://vt:1234@localhost/Tweets")
 conn = engine.connect()
 
+# Get table names as engine.table_names()
+# Read the table into a pandas dataframe as dfr = pd.read_sql("tweets_sentiment",conn)
+
 # Insert all top 5000 pagerank users and their ids, ranked by pagerank
 df = pd.read_csv('../data/production_data_in/id_name_by_pagerank.csv')
 df.to_sql('page_rank_top5000_users', con=engine, if_exists='replace')
