@@ -8,6 +8,7 @@ conn = engine.connect()
 
 # Get table names as engine.table_names()
 # Read the table into a pandas dataframe as dfr = pd.read_sql("tweets_sentiment",conn)
+# Drop a table conn.drop('tweets_sentiment_test')
 
 # Insert all top 5000 pagerank users and their ids, ranked by pagerank
 df = pd.read_csv('../data/production_data_in/id_name_by_pagerank.csv')
