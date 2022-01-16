@@ -66,12 +66,23 @@ w_bow = len(vocab)         # number of words in the vocabulary
 vector_udf = udf(lambda vector: vector.numNonzeros(), LongType())
 # ------------------------ Write out docword.txt------------------------#
 vocab_broadcast = sc.broadcast(vocab)
-featurized = cvmodel.transform(filtered)
-nnz_bow = featurized.select(vector_udf('rawFeatures')).groupBy().sum().collect()
+
+# Example schema for rawFeatures
+#. Filtered text                                        rawFeatures
+# [@santi_abascal:, hipercor, miserable., olvidamos.] | (38,[5,14,26,36],[1.0,1.0,1.0,1.0])
+# The first value is the length of the vocabulary, the second is an array of word indices, the third is the count # of the words in that second array
+# rawFeatures has [index of word],[count of that word] arrays. index of word is from vocab array
+featurized = cvmodel.transform(filtered) 
+#nnz_bow = featurized.select(vector_udf('rawFeatures')).groupBy().sum().collect()
+
+# Get the count of the words from the rawFeatures column
 sparse_values = udf(lambda v: v.values.tolist(), ArrayType(DoubleType()))
-nnz_elements_count = featurized.select(sparse_values('rawFeatures'))
+nnz_elements_count = featurized.select(sparse_values('rawFeatures')) 
+
+# Get the indices of the words corresponding to the counts extracted above
 sparse_indices = udf(lambda v: v.indices.tolist(), ArrayType(LongType()))
 nnz_elements = featurized.select(sparse_indices('rawFeatures'))
+
 fzipped = nnz_elements.select('vals','indices').rdd.zipWithIndex().toDF() # vals is count of a word, indices is index of a word
 fzipped_sep = fzipped.withColumn('vals', fzipped['_1'].getItem("vals"))
 fzipped_sep = fzipped_sep.withColumn('indices', fzipped['_1'].getItem("indices"))
