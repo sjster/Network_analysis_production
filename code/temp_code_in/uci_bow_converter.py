@@ -59,16 +59,20 @@ filtered = remover.transform(wordsData)
 filtered.select("filtered_col").show(truncate=False)
 cv = CountVectorizer(inputCol="filtered_col", outputCol="rawFeatures", vocabSize=15000, minDF=5.0)
 cvmodel = cv.fit(filtered)
-# ------------------------- BOW model ----------------#
+
+# ------------------------- Get vocabulary information  ----------------#
+
 vocab = cvmodel.vocabulary # list of words in order, write out for vocab.txt file
 d_bow = filtered.count()   # number of documents in the vocabulary
 w_bow = len(vocab)         # number of words in the vocabulary
+
+# ------------------------ Generate the BOW data structure ------------------------#
+
 vector_udf = udf(lambda vector: vector.numNonzeros(), LongType())
-# ------------------------ Write out docword.txt------------------------#
 vocab_broadcast = sc.broadcast(vocab)
 
 # Example schema for rawFeatures
-#. Filtered text                                        rawFeatures
+#              Filtered text                                        rawFeatures
 # [@santi_abascal:, hipercor, miserable., olvidamos.] | (38,[5,14,26,36],[1.0,1.0,1.0,1.0])
 # The first value is the length of the vocabulary, the second is an array of word indices, the third is the count # of the words in that second array
 # rawFeatures has [index of word],[count of that word] arrays. index of word is from vocab array
@@ -77,21 +81,27 @@ featurized = cvmodel.transform(filtered)
 
 # Get the count of the words from the rawFeatures column
 sparse_values = udf(lambda v: v.values.tolist(), ArrayType(DoubleType()))
-nnz_elements_count = featurized.select(sparse_values('rawFeatures')) 
-
-# Get the indices of the words corresponding to the counts extracted above
+# Get the indices of the words corresponding to the counts
 sparse_indices = udf(lambda v: v.indices.tolist(), ArrayType(LongType()))
-nnz_elements = featurized.select(sparse_indices('rawFeatures'))
 
-fzipped = nnz_elements.select('vals','indices').rdd.zipWithIndex().toDF() # vals is count of a word, indices is index of a word
-fzipped_sep = fzipped.withColumn('vals', fzipped['_1'].getItem("vals"))
-fzipped_sep = fzipped_sep.withColumn('indices', fzipped['_1'].getItem("indices"))
-fzipped_sep2 = fzipped_sep.select("_2", arrays_zip("indices", "vals"))
-nnz_data = fzipped_sep2.select("_2", explode("arrays_zip(indices, vals)"))
-out2 = nnz_data.withColumn('indices', out['col'].getItem("indices")).withColumn('cnt', out['col'].getItem("vals")).withColumn('reindexed', out2['_2'] + 1).select('reindexed', 'indices', col('cnt').cast(IntegerType()))
-nnz_bow = out2.select(sum(col('cnt'))).collect()[0][0] # number of nnz in the documents
+nnz = featurized.withColumn('vals', sparse_values('rawFeatures')).withColumn('indices', sparse_indices('rawFeatures')) 
+
+t = udf(lambda vals1, vals2: [(int(elem[0]), int(elem[1]) + 1) for elem in zip(vals1,vals2)], ArrayType(ArrayType(LongType())))
+nnz = nnz.withColumn('zipped_array', t(col('vals'), col('indices')))
+nnz_indexed = nnz.select('zipped_array').rdd.zipWithIndex().toDF()
+nnz_extracted = nnz.select("vals", explode("zipped_array"))
+
+nnz_extracted.select(nnz_extracted['col'].getItem(1), nnz_extracted['col'].getItem(0)).repartition(1).write.save(path='test.txt', format='csv', mode='overwrite', sep=" ")
+
+#fzipped = nnz_elements.select('vals','indices').rdd.zipWithIndex().toDF() # vals is count of a word, indices is index of a word
+#fzipped_sep = fzipped.withColumn('vals', fzipped['_1'].getItem("vals"))
+#fzipped_sep = fzipped_sep.withColumn('indices', fzipped['_1'].getItem("indices"))
+#fzipped_sep2 = fzipped_sep.select("_2", arrays_zip("indices", "vals"))
+#nnz_data = fzipped_sep2.select("_2", explode("arrays_zip(indices, vals)"))
+#out2 = nnz_data.withColumn('indices', out['col'].getItem("indices")).withColumn('cnt', out['col'].getItem("vals")).withColumn('reindexed', out2['_2'] + 1).select('reindexed', 'indices', col('cnt').cast(IntegerType()))
+#nnz_bow = out2.select(sum(col('cnt'))).collect()[0][0] # number of nnz in the documents
 # ------------------------- Write docword.txt file ------------------------#
-out2.repartition(1).write.save(path='docword.txt', format='csv', mode='overwrite', sep=" ")
+#out2.repartition(1).write.save(path='docword.txt', format='csv', mode='overwrite', sep=" ")
 # ------------------------- Write the vocab file --------------------------#
-write_vocab_csv(vocab)
+#write_vocab_csv(vocab)
 
