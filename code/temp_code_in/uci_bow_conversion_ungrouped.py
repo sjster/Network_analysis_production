@@ -1,7 +1,7 @@
 import pyspark
 from pyspark.ml import Pipeline
 from pyspark import SparkContext
-from pyspark.ml.feature import HashingTF, IDF, Tokenizer
+from pyspark.ml.feature import HashingTF, IDF, Tokenizer, StopWordsRemover
 from pyspark.ml.feature import RegexTokenizer
 from pyspark.sql.functions import col, udf
 from pyspark.sql.types import IntegerType
@@ -19,21 +19,23 @@ import argparse
 import glob
 import json
 import pickle
+import os, shutil
 
 def write_vocab_csv(l):
 #  with open('/home/vt/extra_storage/Production/output/vocab.txt', 'w') as f:
-  with open('vocab.txt', 'w') as f:
+  with open(output_path + 'vocab.txt', 'w') as f:
         for elem in l:
             f.write(elem + "\n")
 
 def custom_stop_words():
-    stopwordList = ["rt"] 
+    stopwordList = ["rt",""," ",",","."] 
     stopwordList.extend(StopWordsRemover().getStopWords())
     stopwordList = list(set(stopwordList))#optional
     return(stopwordList)
     
 input_tweets_folder = "/home/vt/extra_storage/Production/output/tweets_top5000_joined_by_rank.json"
 input_tweets_folder = "/home/vt/extra_storage/Production/output/tweets_nongrouped_LanaLokteff.txt"
+output_path = './'
 
 conf = pyspark.SparkConf()
 conf.set('spark.local.dir', '/home/vt/extra_storage/')
@@ -97,7 +99,12 @@ nnz_indexed = nnz.select('zipped_array').rdd.zipWithIndex().toDF()
 nnz_extracted = nnz_indexed.select(explode(col('_1').getItem('zipped_array')), col('_2'))
 
 # Extract the column values and add the index value, write out the docword.txt file
-nnz_extracted.select(col('_2') + 1, nnz_extracted['col'].getItem(1), nnz_extracted['col'].getItem(0)).repartition(1).write.save(path='docword.txt', format='csv', mode='overwrite', sep=" ")
+nnz_extracted.select(col('_2') + 1, nnz_extracted['col'].getItem(1), nnz_extracted['col'].getItem(0)).repartition(1).write.save(path=output_path + 'nnz.txt', format='csv', mode='overwrite', sep=" ")
+
+saved_file = glob.glob(output_path + 'nnz.txt/*.csv')
+print(saved_file[0])
+print(output_path + 'docword.txt')
+shutil.copy(saved_file[0] , output_path + 'docword.txt')
 
 #fzipped = nnz_elements.select('vals','indices').rdd.zipWithIndex().toDF() # vals is count of a word, indices is index of a word
 #fzipped_sep = fzipped.withColumn('vals', fzipped['_1'].getItem("vals"))

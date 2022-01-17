@@ -70,3 +70,11 @@ grouped_appended_df.filter(col('name') == 'RichardBSpencer').select("name", col(
 # ------------------ Write out non-grouped data -------------------------------- #
 
 data.filter(col('name') == 'LanaLokteff').select("name", col("text_cleaned").alias("text")).repartition(1).write.save(path='/home/vt/extra_storage/Production/output/tweets_nongrouped_LanaLokteff.txt', format='json', mode='overwrite', sep=" ")
+
+data.filter(col('name') == 'Lauren_Southern').select("name", col("text_cleaned").alias("text")).repartition(1).write.save(path='/home/vt/extra_storage/Production/output/tweets_nongrouped_Lauren_Southern.txt', format='json', mode='overwrite', sep=" ")
+
+data.filter(col('name') == 'Steve_Sailer').select("name", col("text_cleaned").alias("text")).repartition(1).write.save(path='/home/vt/extra_storage/Production/output/tweets_nongrouped_Steve_Sailer.txt', format='json', mode='overwrite', sep=" ")
+
+data.filter(col('name') == 'BrittPettibone').select("name", col("text_cleaned").alias("text")).repartition(1).write.save(path='/home/vt/extra_storage/Production/output/tweets_nongrouped_BrittPettibone.txt', format='json', mode='overwrite', sep=" ")
+
+data.filter(col('name') == 'RichardBSpencer').select("name", col("text_cleaned").alias("text")).repartition(1).write.save(path='/home/vt/extra_storage/Production/output/tweets_nongrouped_RichardBSpencer.txt', format='json', mode='overwrite', sep=" ")
