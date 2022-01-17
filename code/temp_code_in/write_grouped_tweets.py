@@ -53,7 +53,7 @@ data = data.withColumn('text_cleaned', regexp_replace('text', '[#|,|&|!|~|*]|htt
 grouped_df = data.groupby('name').agg(collect_list('text_cleaned').alias("text_aggregated"))
 grouped_appended_df = grouped_df.withColumn("text_aggregated_1", concat_ws(". ", "text_aggregated"))
 
-# -------------------- Write out data -------------------------------- #
+# -------------------- Write out grouped data -------------------------------- #
 
 grouped_appended_df.select("name", col("text_aggregated_1").alias("text")).repartition(1).write.save(path='/home/vt/extra_storage/Production/output/tweets_grouped.txt', format='json', mode='overwrite', sep=" ")
 
@@ -66,3 +66,7 @@ grouped_appended_df.filter(col('name') == 'Steve_Sailer').select("name", col("te
 grouped_appended_df.filter(col('name') == 'BrittPettibone').select("name", col("text_aggregated_1").alias("text")).repartition(1).write.save(path='/home/vt/extra_storage/Production/output/tweets_BrittPettibone.txt', format='json', mode='overwrite', sep=" ")
 
 grouped_appended_df.filter(col('name') == 'RichardBSpencer').select("name", col("text_aggregated_1").alias("text")).repartition(1).write.save(path='/home/vt/extra_storage/Production/output/tweets_RichardBSpencer.txt', format='json', mode='overwrite', sep=" ")
+
+# ------------------ Write out non-grouped data -------------------------------- #
+
+data.filter(col('name') == 'LanaLokteff').select("name", col("text_cleaned").alias("text")).repartition(1).write.save(path='/home/vt/extra_storage/Production/output/tweets_nongrouped_LanaLokteff.txt', format='json', mode='overwrite', sep=" ")

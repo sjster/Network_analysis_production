@@ -33,6 +33,7 @@ def custom_stop_words():
     return(stopwordList)
     
 input_tweets_folder = "/home/vt/extra_storage/Production/output/tweets_top5000_joined_by_rank.json"
+input_tweets_folder = "/home/vt/extra_storage/Production/output/tweets_nongrouped_LanaLokteff.txt"
 
 conf = pyspark.SparkConf()
 conf.set('spark.local.dir', '/home/vt/extra_storage/')
@@ -49,11 +50,11 @@ data = spark.read.option("header", "false").option("multiline",False).json(input
 data = data.na.drop()
 data = data.withColumn('text_cleaned', regexp_replace('text', '[#|,|&|!|~|*]|http.*', ''))
 # ------------------- Grouping individual texts ---------------------- #
-grouped_df = data.groupby('name').agg(collect_list('text_cleaned').alias("text_aggregated"))
-grouped_appended_df = grouped_df.withColumn("text_aggregated_1", concat_ws(". ", "text_aggregated"))
+#grouped_df = data.groupby('name').agg(collect_list('text_cleaned').alias("text_aggregated"))
+#grouped_appended_df = grouped_df.withColumn("text_aggregated_1", concat_ws(". ", "text_aggregated"))
 # --------------------------------------------------------------------#
-tokenizer = Tokenizer(inputCol="text_aggregated_1", outputCol="words")
-wordsData = tokenizer.transform(grouped_appended_df)
+tokenizer = Tokenizer(inputCol="text_cleaned", outputCol="words")
+wordsData = tokenizer.transform(data)
 stopwordlist = custom_stop_words()
 remover = StopWordsRemover(inputCol="words", outputCol="filtered_col", stopWords=stopwordlist)
 filtered = remover.transform(wordsData)
@@ -109,4 +110,5 @@ nnz_extracted.select(col('_2') + 1, nnz_extracted['col'].getItem(1), nnz_extract
 #out2.repartition(1).write.save(path='docword.txt', format='csv', mode='overwrite', sep=" ")
 # ------------------------- Write the vocab file --------------------------#
 write_vocab_csv(vocab)
+
 
