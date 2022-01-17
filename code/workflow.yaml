@@ -74,6 +74,36 @@ tasks:
       cmd: spark-submit --driver-cores 18 --driver-memory 24g --num-executors 24 --master local[*] --packages graphframes:graphframes:0.6.0-spark2.3-s_2.11 production_code_in/NLP/topic_modeling.py
       tags: topic_model
 
+
+    - name: Write grouped and ungrouped tweets
+      dependency: clean_tweets_join_with_pagerank
+      dependency_type: 'one_time'
+      conda_env: pyspark
+      input: /home/vt/extra_storage/Production/output/tweets_top5000_joined_by_rank.json
+      cmd: spark-submit --driver-cores 18 --driver-memory 24g --num-executors 24 --master local[*] production_code_in/ETL/write_grouped_tweets.py
+      tags: write_grouped_and_ungrouped_tweets
+      comments: write tweets to individual files for the central figures, grouped and ungrouped files are written
+
+
+    - name: Topic modeling bigartm
+      dependency: clean_tweets_join_with_pagerank -> write_grouped_and_ungrouped_tweets
+      dependency_type: 'one_time'
+      conda_env: pyspark
+      input: /home/vt/extra_storage/Production/output/tweets_top5000_joined_by_rank.json
+      cmd: spark-submit --driver-cores 18 --driver-memory 24g --num-executors 24 --master local[*] production_code_in/NLP/uci_bow_conversion_ungrouped.py
+      tags: topic_model_bigartm
+      comments: takes as input argument input folder of tweets that are not grouped
+
+
+    - name: Run bigartm
+      dependency: topic_model_bigartm 
+      dependency_type: 'one_time'
+      conda_env: pyspark
+      input: /home/vt/extra_storage/Production/output/docword_individual.txt
+      input: /home/vt/extra_storage/Production/output/vocab.txt
+      cmd: bigartm -d /home/vt/extra_storage/Production/output/docword_individual.txt -v /home/vt/extra_storage/Production/output/vocab.txt -t 20 --num-collection-passes 20
+      tags: run_bigartm
+     
       
     - name: Create tweets for sentiment analyses 
       dependency: clean_tweets_join_with_pagerank 
@@ -102,7 +132,6 @@ tasks:
       output: /sentimentres/results/*.npy
       cmd: python transformer_sentiment_analyzer_from_S3.py
       tags: run_tweeteval_sentiment_analyses
-    
 
 
     - name: Copy processed sentiment files from Wasabi to local folder 
