@@ -89,9 +89,9 @@ nnz = featurized.withColumn('vals', sparse_values('rawFeatures')).withColumn('in
 t = udf(lambda vals1, vals2: [(int(elem[0]), int(elem[1]) + 1) for elem in zip(vals1,vals2)], ArrayType(ArrayType(LongType())))
 nnz = nnz.withColumn('zipped_array', t(col('vals'), col('indices')))
 nnz_indexed = nnz.select('zipped_array').rdd.zipWithIndex().toDF()
-nnz_extracted = nnz.select("vals", explode("zipped_array"))
+nnz_extracted = nnz_indexed.select(explode(col('_1').getItem('zipped_array')), col('_2'))
 
-nnz_extracted.select(nnz_extracted['col'].getItem(1), nnz_extracted['col'].getItem(0)).repartition(1).write.save(path='test.txt', format='csv', mode='overwrite', sep=" ")
+nnz_extracted.select(col('_2'), nnz_extracted['col'].getItem(1), nnz_extracted['col'].getItem(0)).repartition(1).write.save(path='test.txt', format='csv', mode='overwrite', sep=" ")
 
 #fzipped = nnz_elements.select('vals','indices').rdd.zipWithIndex().toDF() # vals is count of a word, indices is index of a word
 #fzipped_sep = fzipped.withColumn('vals', fzipped['_1'].getItem("vals"))
